@@ -1,0 +1,6 @@
+[submodule "dependencies/dropbox-sdk-python"]
+	path = dependencies/dropbox-sdk-python
+	url = https://github.com/dropbox/dropbox-sdk-python.git
+[submodule "dependencies/nextcloud-API"]
+	path = dependencies/nextcloud-API
+	url = https://github.com/EnterpriseyIntranet/nextcloud-API.git
