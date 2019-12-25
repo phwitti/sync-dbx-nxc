@@ -70,6 +70,15 @@ This script depends on
 
 They're also linked in the dependencies-folder. Make sure to correctly setup them for your python-installation.
 
+## Nice Additions
+
+This is in the state of *working* and *usable*. There would still be certain additions to make it somehow *beautiful*.
+- Also use OAuth for NextCloud (Currently not supported by *NextCloud OCS API for Python*)
+- Add Timestamp to logs / more log-file kind of logging.
+- Catch certain exceptions, log errors and continue if possible.
+- Unit-Tests and better code-documentation, to simlify maintenance and modifications by others
+- *If you can think of further improvements, just let me know!*
+
 ## License
 
 sync-dbx-nxc - A script that synchronizes Dropbox and NextCloud.
