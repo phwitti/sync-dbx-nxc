@@ -25,7 +25,7 @@ and automatically updates it afterwards.
 ## Command Line Options
 
 ```
-usage: sync_dropbox_nextcloud.py [-h] --nextcloud-server NEXTCLOUD_SERVER
+usage: sync-dbx-nxc.py [-h] --nextcloud-server NEXTCLOUD_SERVER
                                  --nextcloud-user NEXTCLOUD_USER
                                  --nextcloud-password NEXTCLOUD_PASSWORD
                                  --dropbox-token DROPBOX_TOKEN
