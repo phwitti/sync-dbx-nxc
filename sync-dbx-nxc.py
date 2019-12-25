@@ -471,6 +471,7 @@ def sync_state(_state_prev, _state_curr, _dbx, _nxc, _ignore_folders):
                     nxc_path = path + ' (NextCloud - ' + value['nxc']['time'] + ')'
                     move_nxc(_nxc, path, nxc_path)
                     copy_to_nxc(_dbx, _nxc, path)
+                    copy_to_dbx(_dbx, _nxc, nxc_path)
 
 if __name__ == '__main__':
     main()
