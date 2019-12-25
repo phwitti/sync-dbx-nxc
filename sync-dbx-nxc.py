@@ -244,6 +244,7 @@ def create_folder_dbx(_dbx, _path):
     if SIMULATE or VERBOSE:
         print('create_folder_dbx(' + DROPBOX_SYNC_ROOT + _path + ')')
     if not SIMULATE:
+        _path = _path.rstrip('/')
         _dbx.files_create_folder(DROPBOX_SYNC_ROOT + _path)
 
 def create_folder_nxc(_nxc, _path):
