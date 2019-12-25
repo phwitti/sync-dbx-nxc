@@ -68,7 +68,7 @@ This script depends on
 - Python SDK for Dropbox API v2: https://github.com/dropbox/dropbox-sdk-python
 - NextCloud OCS API for Python: https://github.com/EnterpriseyIntranet/nextcloud-API
 
-They're also linked in the dependencies-folder. Make sure to correctly setup them for your python-installation.
+They're also linked in the dependencies-folder. Make sure to correctly set them up for your python-installation.
 
 ## Nice Additions
 
