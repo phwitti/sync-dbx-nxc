@@ -74,7 +74,7 @@ They're also linked in the dependencies-folder. Make sure to correctly set them 
 
 ### 2020-02-14
 - Fixed bugs in hash-checking, if file changed on both cloud-systems
-- Added much more beatiful logging (one point off from the 'Nice Additions'-List \o/)
+- Added much more beatiful logging (one point off the 'Nice Additions'-List \o/)
 
 ## Nice Additions
 
