@@ -106,9 +106,6 @@ def main():
     ignore_folders = []
     if args.ignore_folder != None:
         ignore_folders = args.ignore_folder
-
-    if args.create_state and args.simulate:
-        print('Warning: Creation of state file cannot be simulated. This might do nothing.')
     
     NEXTCLOUD_USER = args.nextcloud_user
     NEXTCLOUD_SYNC_ROOT = args.nextcloud_root
@@ -122,23 +119,40 @@ def main():
     nxc = nextcloud.NextCloud(args.nextcloud_server, NEXTCLOUD_USER, args.nextcloud_password)
 
     if args.create_state or args.apply_state:
+        if args.create_state and SIMULATE:
+            print_log('Warning: Creation of state file cannot be simulated -- Your state-file has not been created.')
         if args.create_state and not SIMULATE:
+            if VERBOSE:
+                print_log('START CREATE-STATE')
             state_curr = get_state(dbx, nxc)
             write_state(state_curr)
+            if VERBOSE:
+                print_log('FINISH CREATE-STATE')
         if args.apply_state:
+            if VERBOSE:
+                print_log('START APPLY-STATE')
             state_curr = read_state()
             apply_state(state_curr, dbx, nxc, ignore_folders)
             state_curr = get_state(dbx, nxc)
             write_state(state_curr)
+            if VERBOSE:
+                print_log('FINISH APPLY-STATE')
     else:
+        if VERBOSE:
+            print_log('START SYNC')
         state_prev = read_state()
         state_curr = get_state(dbx, nxc)
         sync_state(state_prev, state_curr, dbx, nxc, ignore_folders)
         state_curr = get_state(dbx, nxc)
         write_state(state_curr)
+        if VERBOSE:
+            print_log('FINISH SYNC')
 
 
 # helper functions
+
+def print_log(_str):
+    print(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + '\t' + _str)
 
 def get_empty_state_entry(_name, _path):
     return { 
@@ -157,6 +171,8 @@ def get_empty_state_entry(_name, _path):
 
 def fill_state_dbx(_dbx, _state):
     global DROPBOX_SYNC_ROOT
+    if SIMULATE or VERBOSE:
+        print_log('fill_state_dbx()')
     list_folder_result = _dbx.files_list_folder(DROPBOX_SYNC_ROOT, recursive=True, include_non_downloadable_files=False)
     while list_folder_result.has_more:
         list_folder_result = _dbx.files_list_folder_continue(list_folder_result.cursor)
@@ -182,6 +198,8 @@ def fill_state_nxc(_nxc, _state):
     global NEXTCLOUD_USER
     global NEXTCLOUD_SYNC_ROOT
     global NEXTCLOUD_SYNC_ROOT_TEXT
+    if SIMULATE or VERBOSE:
+        print_log('fill_state_nxc()')
     list_folder_result = _nxc.list_folders(NEXTCLOUD_USER, NEXTCLOUD_SYNC_ROOT, depth=128)
     if list_folder_result.is_ok:
         for entry in list_folder_result.data:
@@ -243,7 +261,7 @@ def create_folder_dbx(_dbx, _path):
     global DROPBOX_SYNC_ROOT
     _path = _path.rstrip('/')
     if SIMULATE or VERBOSE:
-        print('create_folder_dbx(' + DROPBOX_SYNC_ROOT + _path + ')')
+        print_log('create_folder_dbx(' + DROPBOX_SYNC_ROOT + _path + ')')
     if not SIMULATE:
         _dbx.files_create_folder(DROPBOX_SYNC_ROOT + _path)
 
@@ -253,7 +271,7 @@ def create_folder_nxc(_nxc, _path):
     global NEXTCLOUD_USER
     global NEXTCLOUD_SYNC_ROOT
     if SIMULATE or VERBOSE:
-        print('create_folder_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + ')')
+        print_log('create_folder_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + ')')
     if not SIMULATE:
         _nxc.create_folder(NEXTCLOUD_USER, NEXTCLOUD_SYNC_ROOT + _path)
 
@@ -263,7 +281,7 @@ def move_nxc(_nxc, _path, _destination_path):
     global NEXTCLOUD_USER
     global NEXTCLOUD_SYNC_ROOT
     if SIMULATE or VERBOSE:
-        print('move_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + ', ' + NEXTCLOUD_SYNC_ROOT + _destination_path + ')')
+        print_log('move_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + ', ' + NEXTCLOUD_SYNC_ROOT + _destination_path + ')')
     if not SIMULATE:
         _nxc.move_path(NEXTCLOUD_USER, NEXTCLOUD_SYNC_ROOT + _path, NEXTCLOUD_SYNC_ROOT + _destination_path, overwrite=True)
 
@@ -273,7 +291,7 @@ def download_file_dbx(_dbx, _path):
     global DROPBOX_SYNC_ROOT
     filename = _path[_path.rfind('/')+1:]
     if SIMULATE or VERBOSE:
-        print('download_file_dbx(' + DROPBOX_SYNC_ROOT + _path + '), [also exeuted if --simulate]')
+        print_log('download_file_dbx(' + DROPBOX_SYNC_ROOT + _path + '), [also executed if --simulate]')
     _dbx.files_download_to_file(filename, DROPBOX_SYNC_ROOT + _path)
     return filename
 
@@ -284,7 +302,7 @@ def download_file_nxc(_nxc, _path):
     global NEXTCLOUD_SYNC_ROOT
     filename = _path[_path.rfind('/')+1:]
     if SIMULATE or VERBOSE:
-        print('download_file_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + '), [also exeuted if --simulate]')
+        print_log('download_file_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + '), [also executed if --simulate]')
     _nxc.download_file(NEXTCLOUD_USER, NEXTCLOUD_SYNC_ROOT + _path)
     return filename
 
@@ -299,7 +317,7 @@ def get_hash_dbx(_dbx, _path):
     file_hash = get_hash(tmp_filepath)
     os.remove(tmp_filepath)
     if SIMULATE or VERBOSE:
-        print('get_hash_dbx(' + _path + ') -> ' + file_hash)
+        print_log('get_hash_dbx(' + _path + ') -> ' + file_hash)
     return file_hash
 
 def get_hash_nxc(_nxc, _path):
@@ -309,7 +327,7 @@ def get_hash_nxc(_nxc, _path):
     file_hash = get_hash(tmp_filepath)
     os.remove(tmp_filepath)
     if SIMULATE or VERBOSE:
-        print('get_hash_nxc(' + _path + ') -> ' + file_hash)
+        print_log('get_hash_nxc(' + _path + ') -> ' + file_hash)
     return file_hash
 
 def upload_file_dbx(_dbx, _path, _local_filepath):
@@ -317,7 +335,7 @@ def upload_file_dbx(_dbx, _path, _local_filepath):
     global VERBOSE
     global DROPBOX_SYNC_ROOT
     if SIMULATE or VERBOSE:
-        print('upload_file_dbx(' + DROPBOX_SYNC_ROOT + _path + ', ' + _local_filepath + ')')
+        print_log('upload_file_dbx(' + DROPBOX_SYNC_ROOT + _path + ', ' + _local_filepath + ')')
     if not SIMULATE:
         with open(_local_filepath, "rb") as file:
             _dbx.files_upload(file.read(), DROPBOX_SYNC_ROOT + _path, dropbox.files.WriteMode.overwrite)
@@ -328,7 +346,7 @@ def upload_file_nxc(_nxc, _path, _local_filepath):
     global NEXTCLOUD_USER
     global NEXTCLOUD_SYNC_ROOT
     if SIMULATE or VERBOSE:
-        print('upload_file_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + ', ' + _local_filepath + ')')
+        print_log('upload_file_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + ', ' + _local_filepath + ')')
     if not SIMULATE:
         _nxc.upload_file(NEXTCLOUD_USER, _local_filepath, NEXTCLOUD_SYNC_ROOT + _path)
 
@@ -338,7 +356,7 @@ def delete_on_dbx(_dbx, _path):
     global DROPBOX_SYNC_ROOT
     _path = _path.rstrip('/')
     if SIMULATE or VERBOSE:
-        print('delete_on_dbx(' + DROPBOX_SYNC_ROOT + _path + ')')
+        print_log('delete_on_dbx(' + DROPBOX_SYNC_ROOT + _path + ')')
     if not SIMULATE:
         _dbx.files_delete(DROPBOX_SYNC_ROOT + _path)
 
@@ -348,7 +366,7 @@ def delete_on_nxc(_nxc, _path):
     global NEXTCLOUD_USER
     global NEXTCLOUD_SYNC_ROOT
     if SIMULATE or VERBOSE:
-        print('delete_on_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + ')')
+        print_log('delete_on_nxc(' + NEXTCLOUD_SYNC_ROOT + _path + ')')
     if not SIMULATE:
         _nxc.delete_path(NEXTCLOUD_USER, NEXTCLOUD_SYNC_ROOT + _path)
 
@@ -356,7 +374,7 @@ def copy_to_dbx(_dbx, _nxc, _path):
     global SIMULATE
     global VERBOSE
     if SIMULATE or VERBOSE:
-        print('copy_to_dbx(' + _path + ')')
+        print_log('copy_to_dbx(' + _path + ')')
     if is_folder(_path):
         create_folder_dbx(_dbx, _path)
     else:
@@ -368,7 +386,7 @@ def copy_to_nxc(_dbx, _nxc, _path):
     global SIMULATE
     global VERBOSE
     if SIMULATE or VERBOSE:
-        print('copy_to_nxc(' + _path + ')')
+        print_log('copy_to_nxc(' + _path + ')')
     if is_folder(_path):
         create_folder_nxc(_nxc, _path)
     else:
@@ -379,6 +397,8 @@ def copy_to_nxc(_dbx, _nxc, _path):
 def write_state(_state):
     with open('state.json', 'w') as outfile:
         json.dump(_state, outfile, indent=4)
+    if VERBOSE:
+        print_log('write_state(), state-file has been written [also executed if --simulate]')
 
 def read_state():
     with open('state.json') as infile:
@@ -431,17 +451,11 @@ def sync_state(_state_prev, _state_curr, _dbx, _nxc, _ignore_folders):
         has_been_deleted_nxc = has_been_deleted(key, _state_prev, _state_curr, 'nxc')
         
         if (SIMULATE or VERBOSE) and (has_changed_dbx or has_changed_nxc):
-            print('===')
-            print(path)
-            print('has_changed_dbx: ' + str(has_changed_dbx))
-            print('has_changed_nxc: ' + str(has_changed_nxc))
-            print('has_been_created_dbx: ' + str(has_been_created_dbx))
-            print('has_been_created_nxc: ' + str(has_been_created_nxc))
-            print('has_been_changed_dbx: ' + str(has_been_changed_dbx))
-            print('has_been_changed_nxc: ' + str(has_been_changed_nxc))
-            print('has_been_deleted_dbx: ' + str(has_been_deleted_dbx))
-            print('has_been_deleted_nxc: ' + str(has_been_deleted_nxc))
-            print('---')
+            print_log('sync_state(), ' + path)
+            print_log(' -> '
+                + 'created(dbx: ' + str(has_been_created_dbx) + ', nxc: ' + str(has_been_created_nxc) + '), '
+                + 'changed(dbx: ' + str(has_been_changed_dbx) + ', nxc: ' + str(has_been_changed_nxc) + '), '
+                + 'deleted(dbx: ' + str(has_been_deleted_dbx) + ', nxc: ' + str(has_been_deleted_nxc) + ')')
         
         if has_changed_dbx and not has_changed_nxc:
             if has_been_created_dbx:
