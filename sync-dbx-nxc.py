@@ -289,14 +289,14 @@ def download_file_nxc(_nxc, _path):
     return filename
 
 def get_hash(_local_filepath):
-    with open(full_path, 'rb') as file:
+    with open(_local_filepath, 'rb') as file:
         return hashlib.sha1(file.read()).hexdigest()
 
 def get_hash_dbx(_dbx, _path):
     global SIMULATE
     global VERBOSE
     tmp_filepath = download_file_dbx(_dbx, _path)
-    file_hash = get_hash(_local_filepath)
+    file_hash = get_hash(tmp_filepath)
     os.remove(tmp_filepath)
     if SIMULATE or VERBOSE:
         print('get_hash_dbx(' + _path + ') -> ' + file_hash)
@@ -306,7 +306,7 @@ def get_hash_nxc(_nxc, _path):
     global SIMULATE
     global VERBOSE
     tmp_filepath = download_file_nxc(_nxc, _path)
-    file_hash = get_hash(_local_filepath)
+    file_hash = get_hash(tmp_filepath)
     os.remove(tmp_filepath)
     if SIMULATE or VERBOSE:
         print('get_hash_nxc(' + _path + ') -> ' + file_hash)
@@ -459,7 +459,7 @@ def sync_state(_state_prev, _state_curr, _dbx, _nxc, _ignore_folders):
                 copy_to_dbx(_dbx, _nxc, path)
         elif has_changed_dbx and has_changed_nxc:
             if has_been_created_dbx and has_been_created_nxc:
-                if get_hash_dbx(_dbx, path) != get_hash_nxc(_nxc, path):
+                if not is_folder(path) and get_hash_dbx(_dbx, path) != get_hash_nxc(_nxc, path):
                     nxc_path = path + ' (NextCloud - ' + value['nxc']['time'] + ')'
                     move_nxc(_nxc, path, nxc_path)
                     copy_to_nxc(_dbx, _nxc, path)
