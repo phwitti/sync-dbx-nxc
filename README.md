@@ -70,11 +70,17 @@ This script depends on
 
 They're also linked in the dependencies-folder. Make sure to correctly set them up for your python-installation.
 
+## Changelog
+
+### 2020-02-14
+- Fixed bugs in hash-checking, if file changed on both cloud-systems
+- Added much more beatiful logging (one point off from the 'Nice Additions'-List \o/)
+
 ## Nice Additions
 
 This is in the state of *working* and *usable*. There would still be certain additions to make it somehow *beautiful*.
 - Also use OAuth for NextCloud (Currently not supported by *NextCloud OCS API for Python*)
-- Add Timestamp to logs / more log-file kind of logging.
+- ~~Add Timestamp to logs / more log-file kind of logging.~~ (Added on 2020-02-14)
 - Catch certain exceptions, log errors and continue if possible.
 - Unit-Tests and better code-documentation, to simlify maintenance and modifications by others
 - *If you can think of further improvements, just let me know!*
