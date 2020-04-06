@@ -1,3 +1,5 @@
+> This script is kinda barebones and only for this one use-case (but therefore also simple to understand). For a more sophisticated approach to this problem or if you need support for other cloud-systems you might want to take a look at [rclone](https://github.com/rclone/rclone).
+
 # sync-dbx-nxc
 
 Script that synchronizes Dropbox and Nextcloud.  
